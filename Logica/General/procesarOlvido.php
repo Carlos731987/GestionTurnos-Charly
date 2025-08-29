@@ -30,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("iss", $paciente_id, $token, $expiracion);
         $stmt->execute();
         $stmt->close();
+        // Construir URL dinámica para reset de contraseña
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $url_reset = $protocol . "://" . $host . "/interfaces/resetPassword.php?token=" . $token;
         //Enviar correo
         $mail = new PHPMailer(true);
         try {
@@ -53,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Hola,</p>
                 <p>Has solicitado recuperar tu acceso.</p>
                 <p>Haz clic aquí para continuar (válido por 1 hora):</p>
-                <a href='http://192.168.0.66/interfaces/resetPassword.php?token=$token'>Recuperar acceso</a>
+                <a href='$url_reset'>Recuperar acceso</a>
                 <br><br>
                 <small>Si no solicitaste este cambio, ignora este correo.</small>
             ";
