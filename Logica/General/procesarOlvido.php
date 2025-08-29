@@ -8,10 +8,6 @@ require_once('../../librerias/PHPMailer/src/PHPMailer.php');
 require_once('../../librerias/PHPMailer/src/SMTP.php');
 require_once('../../librerias/PHPMailer/src/Exception.php');
 
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 $conn = ConexionBD::conectar();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
