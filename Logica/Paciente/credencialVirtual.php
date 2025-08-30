@@ -18,16 +18,20 @@ $conn = ConexionBD::conectar();
 
 // Función para obtener los datos del paciente por ID
 function obtenerDatosPaciente($conn, $id_paciente) {
-    $stmt = $conn->prepare("SELECT p.nombre, p.apellido, p.numero_afiliado, a.tipo_beneficiario, a.seccional, a.estado 
-                            FROM pacientes p
-                            JOIN afiliados a ON p.id_afiliado = a.id 
-                            WHERE p.id = ?");
+    $stmt = $conn->prepare("
+        SELECT p.nombre, p.apellido, p.numero_afiliado,
+               a.tipo_beneficiario, a.seccional, a.estado
+        FROM pacientes p
+        JOIN afiliados a ON p.id_afiliado = a.id
+        WHERE p.id = ?
+    ");
     if (!$stmt) {
         throw new Exception("Error en la consulta de datos: " . $conn->error);
     }
-
+    $nombre = $apellido = $numero_afiliado = $tipo_beneficiario = $seccional = $estado = null;
     $stmt->bind_param("i", $id_paciente);
     $stmt->execute();
+    $stmt->bind_result($nombre, $apellido, $numero_afiliado, $tipo_beneficiario, $seccional, $estado);
     $stmt->store_result();
 
     if ($stmt->num_rows !== 1) {
@@ -35,23 +39,31 @@ function obtenerDatosPaciente($conn, $id_paciente) {
         return null;
     }
 
-    $stmt->bind_result($nombre, $apellido, $numero_afiliado, $tipo_beneficiario, $seccional, $estado);
     $stmt->fetch();
     $stmt->close();
 
-    return compact('nombre', 'apellido', 'numero_afiliado', 'tipo_beneficiario', 'seccional', 'estado');
+    return [
+        'nombre'            => $nombre,
+        'apellido'          => $apellido,
+        'numero_afiliado'   => $numero_afiliado,
+        'tipo_beneficiario' => $tipo_beneficiario,
+        'seccional'         => $seccional,
+        'estado'            => $estado,
+    ];
 }
 
 // Función para obtener los datos del paciente por token
-function obtenerDatosPacientePorToken($conn, $token) {
-    $stmt = $conn->prepare("SELECT p.nombre, p.apellido, p.numero_afiliado, a.tipo_beneficiario, a.seccional, a.estado 
-                            FROM pacientes p
-                            JOIN afiliados a ON p.id_afiliado = a.id 
-                            WHERE p.token_qr = ?"); // Usamos el campo token_qr aquí
+function obtenerDatosPacientePorToken($conn, $token)
+{
+    $stmt = $conn->prepare("
+            SELECT p.nombre, p.apellido, p.numero_afiliado, p.token_qr, a.tipo_beneficiario, a.seccional, a.estado 
+            FROM pacientes p
+            JOIN afiliados a ON p.id_afiliado = a.id 
+            WHERE p.token_qr = ?"); // Usamos el campo token_qr aquí
     if (!$stmt) {
         throw new Exception("Error en la consulta de datos: " . $conn->error);
     }
-
+    $nombre = $apellido = $numero_afiliado = $tipo_beneficiario = $token_qr = $seccional = $estado = null;
     $stmt->bind_param("s", $token); // Usamos 's' para pasar el token como string
     $stmt->execute();
     $stmt->store_result();
@@ -61,15 +73,16 @@ function obtenerDatosPacientePorToken($conn, $token) {
         return null; // Si no se encuentra el token, retornamos null
     }
 
-    $stmt->bind_result($nombre, $apellido, $numero_afiliado, $tipo_beneficiario, $seccional, $estado);
+    $stmt->bind_result($nombre, $apellido, $numero_afiliado, $token_qr, $tipo_beneficiario, $seccional, $estado);
     $stmt->fetch();
     $stmt->close();
 
-    return compact('nombre', 'apellido', 'numero_afiliado', 'tipo_beneficiario', 'seccional', 'estado');
+    return compact('nombre', 'apellido', 'numero_afiliado', 'token_qr', 'tipo_beneficiario', 'seccional', 'estado');
 }
 
 // Función para mostrar los datos del paciente
-function mostrarDatosPaciente($datos) {
+function mostrarDatosPaciente($datos)
+{
     echo "<p><strong>Nombre:</strong> {$datos['nombre']}</p>";
     echo "<p><strong>Apellido:</strong> {$datos['apellido']}</p>";
     echo "<p><strong>Número de Afiliado:</strong> {$datos['numero_afiliado']}</p>";
@@ -78,7 +91,8 @@ function mostrarDatosPaciente($datos) {
     echo "<p><strong>Estado:</strong> {$datos['estado']}</p>";
 }
 
-function descargarCredencial($conn, $token) {
+function descargarCredencial($conn, $token)
+{
     // Obtener los datos del paciente
     $datos = obtenerDatosPacientePorToken($conn, $token);
     if (!$datos) {
@@ -111,5 +125,3 @@ function descargarCredencial($conn, $token) {
 if (isset($_GET['descargar']) && $_GET['descargar'] == '1' && isset($_GET['token'])) {
     descargarCredencial($conn, $_GET['token']);
 }
-
-?>
