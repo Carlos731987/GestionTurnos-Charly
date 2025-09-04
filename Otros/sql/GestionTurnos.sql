@@ -6,6 +6,28 @@
 -- 4- Ejecutar el script en la base de datos: mariadb -u root -p GestionTurnos < /home/bitnami/sql/GestionTurnos.sql
 -- 5- Verificar que la base de datos y las tablas se hayan creado correctamente.
 
+CREATE TABLE roles (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO roles (nombre_rol) VALUES
+('Paciente'),
+('Medico'),
+('Administrador');
+
+CREATE TABLE perfiles (
+    id_perfil INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol_id INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rol_id) REFERENCES roles(id_rol)
+);
+
 CREATE TABLE afiliados (
     id INT AUTO_INCREMENT PRIMARY KEY,
     numero_documento VARCHAR(20) NOT NULL UNIQUE,
@@ -121,6 +143,8 @@ CREATE TABLE medicos (
   email VARCHAR(100) NOT NULL UNIQUE,
   telefono VARCHAR(100) NOT NULL,
   matricula VARCHAR(255) NOT NULL
+  id_perfil INT UNIQUE,
+  FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil);
 );
 
 INSERT INTO medicos (nombre, apellido, numero_documento, email, telefono, matricula)
@@ -197,7 +221,9 @@ CREATE TABLE pacientes (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_afiliado INT,
     token_qr VARCHAR(255) UNIQUE,
-    FOREIGN KEY (id_afiliado) REFERENCES afiliados(id)
+    id_perfil INT UNIQUE,
+    FOREIGN KEY (id_afiliado) REFERENCES afiliados(id),
+    FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
 );
 
 CREATE TABLE recuperacion_password (
@@ -243,36 +269,8 @@ CREATE TABLE turnos (
     FOREIGN KEY (medico_id) REFERENCES medicos(id_medico)
 );
 
-
-
--- PRUEBAS
--- DELETE FROM agenda_medica;       
--- DELETE FROM turnos;              
--- DELETE FROM agenda;              
--- DELETE FROM ordenes_estudios;    
--- DELETE FROM pacientes;           
--- DELETE FROM medico_especialidad; 
--- DELETE FROM medicos;             
--- DELETE FROM estudios;            
--- DELETE FROM recursos;            
--- DELETE FROM especialidades;      
--- DELETE FROM tipos_estudio;     
--- DELETE FROM afiliados;           
--- DELETE FROM sedes;               
-
--- ALTER TABLE afiliados AUTO_INCREMENT = 1;
--- ALTER TABLE pacientes AUTO_INCREMENT = 1;
--- ALTER TABLE tipos_estudio AUTO_INCREMENT = 1;
--- ALTER TABLE estudios AUTO_INCREMENT = 1;
--- ALTER TABLE sedes AUTO_INCREMENT = 1;
--- ALTER TABLE recursos AUTO_INCREMENT = 1;
--- ALTER TABLE turnos AUTO_INCREMENT = 1;
--- ALTER TABLE agenda AUTO_INCREMENT = 1;
--- ALTER TABLE ordenes_estudios AUTO_INCREMENT = 1;
--- ALTER TABLE especialidades AUTO_INCREMENT = 1;
--- ALTER TABLE medicos AUTO_INCREMENT = 1;
--- ALTER TABLE medico_especialidad AUTO_INCREMENT = 1;
--- ALTER TABLE agenda_medica AUTO_INCREMENT = 1;
-
--- UPDATE agenda SET disponible = TRUE;
--- UPDATE agenda_medica SET disponible = TRUE;
+CREATE TABLE administradores (
+    id_admin INT AUTO_INCREMENT PRIMARY KEY,
+    id_perfil INT UNIQUE,
+    FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
+);

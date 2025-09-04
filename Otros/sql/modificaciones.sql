@@ -1,22 +1,35 @@
-CREATE TABLE agenda_medica (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_medico INT NOT NULL,
-    fecha DATE NOT NULL,  -- Nueva columna fecha
-    dia_semana ENUM('lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo') NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
-    intervalo_minutos INT NOT NULL DEFAULT 30,
-    sede_id INT NOT NULL,
-    disponible TINYINT(1) DEFAULT 1,  -- Nueva columna disponible
-    FOREIGN KEY (id_medico) REFERENCES medicos(id_medico),
-    FOREIGN KEY (sede_id) REFERENCES sedes(id)
+CREATE TABLE roles (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE
 );
 
-INSERT INTO agenda_medica (id_medico, fecha, dia_semana, hora_inicio, hora_fin, intervalo_minutos, sede_id, disponible)
-VALUES 
-    (1, '2025-08-27', 'Martes', '09:00:00', '09:30:00', 30, 1, 1),
-    (1, '2025-08-27', 'Martes', '09:30:00', '10:00:00', 30, 1, 1),
-    (1, '2025-08-28', 'Miercoles', '10:00:00', '10:30:00', 30, 1, 1), 
-    (2, '2025-08-29', 'Jueves', '09:00:00', '09:30:00', 30, 1, 1),
-    (2, '2025-09-29', 'Jueves', '09:30:00', '10:00:00', 30, 1, 1),
-    (2, '2025-08-30', 'Sabado', '10:00:00', '10:30:00', 30, 1, 1);
+INSERT INTO roles (nombre_rol) VALUES
+('Paciente'),
+('Medico'),
+('Administrador');
+
+CREATE TABLE perfiles (
+    id_perfil INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol_id INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rol_id) REFERENCES roles(id_rol)
+);
+
+ALTER TABLE medicos 
+ADD COLUMN id_perfil INT UNIQUE,
+ADD FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil);
+
+ALTER TABLE pacientes 
+ADD COLUMN id_perfil INT UNIQUE,
+ADD FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil);
+
+CREATE TABLE administradores (
+    id_admin INT AUTO_INCREMENT PRIMARY KEY,
+    id_perfil INT UNIQUE,
+    FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
+);
