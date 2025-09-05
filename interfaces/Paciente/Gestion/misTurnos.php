@@ -280,7 +280,7 @@ $result = $stmt->get_result();
     <nav>
         <ul>
             <li><a href="../../../index.php">Inicio</a></li>
-            <li><a href="../principal.php">Principal</a></li>
+            <li><a href="../principalPac.php">Principal</a></li>
             <li><a href="../verCredencial.php">Ver credencial</a></li>
             <li>
                 <input type="text" placeholder="Buscar..." />

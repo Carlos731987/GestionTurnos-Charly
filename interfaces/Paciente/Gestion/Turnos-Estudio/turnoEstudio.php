@@ -21,27 +21,32 @@ $sedes = $conn->query("SELECT id, nombre FROM sedes");
 <head>
     <meta charset="UTF-8">
     <title>Solicitar Estudio</title>
+    <link rel="stylesheet" href="../../../style.css">
 </head>
-<body>
-    <h1>Solicitar estudio</h1>
-    <form action="buscarEstudios.php" method="POST">
-        <label for="tipoEstudio">Tipo de estudio:</label>
-        <select name="tipoEstudio" id="tipoEstudio" required>
-            <option value="">Seleccione...</option>
-            <?php while($row = $tipos->fetch_assoc()): ?>
-                <option value="<?= $row['id'] ?>"><?= $row['nombre'] ?></option>
-            <?php endwhile; ?>
-        </select>
+<body class="body-turnoEstudio">
+    <!-- CONTENEDOR TARJETA -->
+    <div class="card-form-turnoEstudio">
+        <h1>Solicitar Estudio</h1>
+        <form action="buscarEstudios.php" method="POST">
+            
+            <label for="tipoEstudio">Tipo de estudio:</label>
+            <select name="tipoEstudio" id="tipoEstudio" required>
+                <option value="">Seleccione...</option>
+                <?php while($row = $tipos->fetch_assoc()): ?>
+                    <option value="<?= $row['id'] ?>"><?= $row['nombre'] ?></option>
+                <?php endwhile; ?>
+            </select>
 
-        <label for="sede">Sede:</label>
-        <select name="sede" id="sede" required>
-            <option value="">Seleccione...</option>
-            <?php while($row = $sedes->fetch_assoc()): ?>
-                <option value="<?= $row['id'] ?>"><?= $row['nombre'] ?></option>
-            <?php endwhile; ?>
-        </select>
+            <label for="sede">Sede:</label>
+            <select name="sede" id="sede" required>
+                <option value="">Seleccione...</option>
+                <?php while($row = $sedes->fetch_assoc()): ?>
+                    <option value="<?= $row['id'] ?>"><?= $row['nombre'] ?></option>
+                <?php endwhile; ?>
+            </select>
 
-        <button type="submit">Buscar estudios</button>
-    </form>
+            <button type="submit">Buscar estudios</button>
+        </form>
+    </div>
 </body>
 </html>

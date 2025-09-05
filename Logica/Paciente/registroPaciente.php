@@ -67,16 +67,32 @@ function obtener_id_afiliado($conn, $documento, $afiliado) {
     }
 }
 
+function crear_perfil($conn, $data) {
+    $rol_id = 1; // Paciente
+    $stmt = $conn->prepare("INSERT INTO perfiles (nombre, apellido, email, password_hash, rol_id) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssi", $data['nombre'], $data['apellido'], $data['email'], $data['password_hash'], $rol_id);
+    
+    if ($stmt->execute()) {
+        $id = $stmt->insert_id;
+        $stmt->close();
+        return $id;
+    } else {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception("❌ Error al crear perfil: $error");
+    }
+}
+
 // Función: Registrar paciente
-function registrar_paciente($conn, $data, $imagen_base64, $id_afiliado, $token_qr) {
+function registrar_paciente($conn, $data, $imagen_base64, $id_afiliado, $token_qr, $id_perfil) {
     $stmt = $conn->prepare("
         INSERT INTO pacientes 
-        (nombre, apellido, tipo_documento, numero_documento, img_dni, genero, fecha_nacimiento, domicilio, numero_contacto, cobertura_salud, numero_afiliado, email, password_hash, id_afiliado, token_qr)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (nombre, apellido, tipo_documento, numero_documento, img_dni, genero, fecha_nacimiento, domicilio, numero_contacto, cobertura_salud, numero_afiliado, email, password_hash, id_afiliado, token_qr, id_perfil)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
-    $stmt->bind_param (
-        "sssssssssssssis",        
+    $stmt->bind_param(
+        "ssssssssssssssis",
         $data['nombre'],
         $data['apellido'],
         $data['tipo_documento'],
@@ -91,12 +107,19 @@ function registrar_paciente($conn, $data, $imagen_base64, $id_afiliado, $token_q
         $data['email'],
         $data['password_hash'],
         $id_afiliado,
-        $token_qr
+        $token_qr,
+        $id_perfil
     );
 
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        throw new Exception("❌ Error al registrar paciente: $error");
+    }
+
     $stmt->close();
 }
+
 
 // Main
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -111,9 +134,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_afiliado = obtener_id_afiliado($conn, $data['numero_documento'], $data['numero_afiliado']);
         $token_qr = bin2hex(random_bytes(16));
 
-        registrar_paciente($conn, $data, $imagen_dni, $id_afiliado, $token_qr);
+        // 1. Crear perfil
+        $id_perfil = crear_perfil($conn, $data);
 
-        echo "<script>alert('✅ Registro exitoso.'); window.location.href = '../../index.php';</script>";
+        // 2. Registrar paciente con id_perfil
+        registrar_paciente($conn, $data, $imagen_dni, $id_afiliado, $token_qr, $id_perfil);
+
+        echo "<script>alert('✅ Registro exitoso.'); window.location.href = '../../interfaces/Paciente/login.php';</script>";
     } catch (mysqli_sql_exception $e) {
         $msg = $e->getMessage();
         if (strpos($msg, 'numero_documento') !== false) {

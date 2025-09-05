@@ -142,9 +142,9 @@ CREATE TABLE medicos (
   numero_documento VARCHAR(20) NOT NULL UNIQUE,
   email VARCHAR(100) NOT NULL UNIQUE,
   telefono VARCHAR(100) NOT NULL,
-  matricula VARCHAR(255) NOT NULL
-  id_perfil INT UNIQUE,
-  FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil);
+  matricula VARCHAR(255) NOT NULL,
+  id_perfil INT,
+  FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
 );
 
 INSERT INTO medicos (nombre, apellido, numero_documento, email, telefono, matricula)
@@ -209,7 +209,7 @@ CREATE TABLE pacientes (
     apellido VARCHAR(50) NOT NULL,
     tipo_documento ENUM('DNI', 'Pasaporte', 'Otro') NOT NULL,
     numero_documento VARCHAR(20) NOT NULL UNIQUE,
-    img_dni LONGTEXT NOT NULL, -- Ruta o nombre del archivo
+    img_dni LONGTEXT NOT NULL,
     genero ENUM('Masculino', 'Femenino', 'Otro') NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     domicilio VARCHAR(100) NOT NULL,
@@ -217,11 +217,11 @@ CREATE TABLE pacientes (
     cobertura_salud ENUM('UOM', 'OSDE', 'Swiss Medical', 'Galeno', 'Otra') NOT NULL,
     numero_afiliado VARCHAR(30) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL, -- Se recomienda guardar un hash, no la contraseña en texto
+    password_hash VARCHAR(255) NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_afiliado INT,
     token_qr VARCHAR(255) UNIQUE,
-    id_perfil INT UNIQUE,
+    id_perfil INT,
     FOREIGN KEY (id_afiliado) REFERENCES afiliados(id),
     FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
 );
@@ -271,6 +271,6 @@ CREATE TABLE turnos (
 
 CREATE TABLE administradores (
     id_admin INT AUTO_INCREMENT PRIMARY KEY,
-    id_perfil INT UNIQUE,
+    id_perfil INT,
     FOREIGN KEY (id_perfil) REFERENCES perfiles(id_perfil)
 );

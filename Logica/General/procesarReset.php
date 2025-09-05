@@ -31,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
     // Actualizar contraseña
     $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("UPDATE pacientes SET password_hash = ? WHERE id = ?");
+    // $stmt = $conn->prepare("UPDATE pacientes SET password_hash = ? WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE perfiles SET password_hash = ? WHERE id_perfil = ?");
     $stmt->bind_param("si", $hash, $paciente_id);
     $stmt->execute();
     $stmt->close();

@@ -35,6 +35,7 @@ if ($result) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Solicitar turno médico</title>
+  <!-- <link rel="stylesheet" href="../../../style.css"> -->
   <style>
     body {
       background: url("https://i.pinimg.com/1200x/9b/e2/12/9be212df4fc8537ddc31c3f7fa147b42.jpg") no-repeat center center fixed;
